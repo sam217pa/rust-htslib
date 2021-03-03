@@ -59,7 +59,7 @@ impl Reader {
     /// # Arguments
     ///
     /// * `name` - the name of the template sequence (e.g. "chr1")
-    pub fn seq_len<N: AsRef<str>>(&self, name: N) -> Result<i32> {
+    pub fn seq_len<N: AsRef<str>>(&self, name: N) -> Result<usize> {
         let cname = ffi::CString::new(name.as_ref().as_bytes()).unwrap();
         let len_out: i64 = 0;
         let cseq = unsafe {
