@@ -22,6 +22,7 @@ pub struct Reader {
     inner: *mut htslib::faidx_t,
 }
 
+
 impl Reader {
     /// Create a new Reader from a path.
     ///
@@ -51,6 +52,23 @@ impl Reader {
         let cpath = ffi::CString::new(path).unwrap();
         let inner = unsafe { htslib::fai_load(cpath.as_ptr()) };
         Ok(Self { inner })
+    }
+
+    /// Return sequence length, -1 if not present
+    ///
+    /// # Arguments
+    ///
+    /// * `name` - the name of the template sequence (e.g. "chr1")
+    pub fn seq_len<N: AsRef<str>>(&self, name: N) -> Result<i32> {
+        let cname = ffi::CString::new(name.as_ref().as_bytes()).unwrap();
+        let len_out: i64 = 0;
+        let cseq = unsafe {
+            htslib::faidx_seq_len(
+                self.inner,                          //*const faidx_t,
+                cname.as_ptr(),                      // c_name
+            )
+        };
+        Ok(cseq)
     }
 
     /// Fetch the sequence as a byte array.
