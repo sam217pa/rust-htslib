@@ -7,6 +7,8 @@
 //! Module for working with faidx-indexed FASTA files.
 //!
 
+use std::convert::TryInto;
+
 use std::ffi;
 use std::path::Path;
 use url::Url;
@@ -61,14 +63,13 @@ impl Reader {
     /// * `name` - the name of the template sequence (e.g. "chr1")
     pub fn seq_len<N: AsRef<str>>(&self, name: N) -> Result<usize> {
         let cname = ffi::CString::new(name.as_ref().as_bytes()).unwrap();
-        let len_out: i64 = 0;
-        let cseq = unsafe {
+        let seqlen = unsafe {
             htslib::faidx_seq_len(
                 self.inner,                          //*const faidx_t,
                 cname.as_ptr(),                      // c_name
             )
         };
-        Ok(cseq)
+        Ok(seqlen.try_into().unwrap())
     }
 
     /// Fetch the sequence as a byte array.
